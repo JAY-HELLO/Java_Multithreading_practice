@@ -8,6 +8,5 @@
 /dataSources.local.xml
 /out/
 *.idea/
-
 *.iml
 .gitignore
