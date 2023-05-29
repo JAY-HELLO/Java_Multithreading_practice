@@ -22,7 +22,7 @@ public class Main {
         long duration  = endTime - startTime;
 
         long mstartTime = System.currentTimeMillis();
-        recolorMultithreaded(originalImage, resultImage,20);
+        recolorMultithreaded(originalImage, resultImage,10);
         long mendTime = System.currentTimeMillis();
         long mduration = mendTime-mstartTime;
 
