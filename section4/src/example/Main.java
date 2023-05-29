@@ -1,6 +1,7 @@
 package example;
 
 import javax.imageio.ImageIO;
+import javax.lang.model.SourceVersion;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -15,10 +16,21 @@ public class Main {
         BufferedImage originalImage = ImageIO.read(new File(SOURCE_FILE));
         BufferedImage resultImage = new BufferedImage(originalImage.getWidth(),originalImage.getHeight(),BufferedImage.TYPE_INT_RGB);
 
-        //recolorSingleThreaded(originalImage,resultImage);
-        recolorMultithreaded(originalImage, resultImage,4);
+        long startTime = System.currentTimeMillis();
+        recolorSingleThreaded(originalImage,resultImage);
+        long endTime = System.currentTimeMillis();
+        long duration  = endTime - startTime;
+
+        long mstartTime = System.currentTimeMillis();
+        recolorMultithreaded(originalImage, resultImage,20);
+        long mendTime = System.currentTimeMillis();
+        long mduration = mendTime-mstartTime;
+
         File outputFile = new File(DESTINATION_FILE);
         ImageIO.write(resultImage, "jpg", outputFile);
+
+        System.out.println("duration = " + duration);
+        System.out.println("mduration = " + mduration);
     }
 
     public static void recolorMultithreaded(BufferedImage originalImage, BufferedImage resultImage, int numberOfThreads) throws InterruptedException {
