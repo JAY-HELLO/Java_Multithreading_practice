@@ -1,7 +1,9 @@
 package example2;
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Main {
     public static final int HIGHEST_PRICE = 1000;
@@ -9,6 +11,7 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         InventoryDatabase inventoryDatabase = new InventoryDatabase();
         Random random = new Random();
+
         for(int i=0;i<100000;i++){
             inventoryDatabase.addItem(random.nextInt(HIGHEST_PRICE));
         }
@@ -28,7 +31,7 @@ public class Main {
 
         for (int readeridx = 0; readeridx < numberOfReadThreads; readeridx++) {
             Thread reader = new Thread(()->{
-                for(int i=0;i<10000;i++){
+                for(int i=0;i<100000;i++){
                     int upperBoundPrice = random.nextInt(HIGHEST_PRICE);
                     int lowerBoundPrice = upperBoundPrice>0 ? random.nextInt(upperBoundPrice) : 0;
                     inventoryDatabase.getNumberOfItemsInPriceRange(lowerBoundPrice, upperBoundPrice);
@@ -52,9 +55,13 @@ public class Main {
         //가격과 가격에 해당하는 상품수를 보여주는 데이터 주고를 위한 TreeMap 선언.
         private TreeMap<Integer, Integer> priceToCountMap = new TreeMap<>();
         private ReentrantLock lock = new ReentrantLock();
+        private ReentrantReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock();
+        private Lock readLock = reentrantReadWriteLock.readLock();
+        private Lock writeLock = reentrantReadWriteLock.writeLock();
+
 
         public int getNumberOfItemsInPriceRange(int lowerBound, int upperBound) {
-            lock.lock();
+            readLock.lock();
             try {
                 Integer fromKey = priceToCountMap.ceilingKey(lowerBound);
                 Integer toKey = priceToCountMap.floorKey(upperBound);
@@ -69,12 +76,12 @@ public class Main {
                 }
                 return sum;
             }finally {
-                lock.unlock();
+                readLock.unlock();
             }
         }
 
         public void addItem(int price){
-            lock.lock();
+            writeLock.lock();
             try {
                 Integer numberOfItemsForPrice = priceToCountMap.get(price);
                 if (numberOfItemsForPrice == null) {
@@ -83,12 +90,12 @@ public class Main {
                     priceToCountMap.put(price, numberOfItemsForPrice + 1);
                 }
             } finally {
-                lock.unlock();
+                writeLock.unlock();
             }
 
         }
         public void removeItem(int price){
-            lock.lock();
+            writeLock.lock();
             try {
                 Integer numberOfItemsForPrice = priceToCountMap.get(price);
                 if (numberOfItemsForPrice == null || numberOfItemsForPrice == 1) {
@@ -97,7 +104,7 @@ public class Main {
                     priceToCountMap.put(price, numberOfItemsForPrice - 1);
                 }
             }finally{
-                lock.unlock();
+                writeLock.unlock();
             }
         }
     }
