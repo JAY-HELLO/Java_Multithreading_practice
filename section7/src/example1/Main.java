@@ -233,10 +233,10 @@ public class Main extends Application{
                         Thread.sleep(1000);
 
                     }catch (InterruptedException e){}
-                    pricesContainer.setBitcoinCashPrice(5000);
-                    pricesContainer.setBitcoinPrice(20000);
-                    pricesContainer.setEitherPrice(2000);
-                    pricesContainer.setLitecoinPrice(500);
+                    pricesContainer.setBitcoinCashPrice(random.nextInt(20000));
+                    pricesContainer.setBitcoinPrice(random.nextInt(20000));
+                    pricesContainer.setEitherPrice(random.nextInt(2000));
+                    pricesContainer.setLitecoinPrice(random.nextInt(500));
                     pricesContainer.setRipplePrice(random.nextDouble());
                 }finally {
                     pricesContainer.getLockObject().unlock();
